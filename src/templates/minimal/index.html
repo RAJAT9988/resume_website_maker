@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-field="basics.name">Your Name</title>
+  </head>
+  <body>
+    <nav class="nav">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <main class="main">
+      <section class="hero">
+        <div class="avatarWrap">
+          <img class="avatar" data-field="basics.photo" alt="Profile photo" />
+          <div class="avatarPlaceholder" data-field="basics.photoPlaceholder">You</div>
+        </div>
+        <h1 class="name" data-field="basics.name">Your Name</h1>
+        <p class="headline" data-field="basics.headline">Your headline</p>
+        <p class="meta">
+          <span data-field="basics.location">Location</span>
+          <span class="dot">·</span>
+          <a data-field="basics.email" href="mailto:">email@example.com</a>
+          <span class="dot">·</span>
+          <span data-field="basics.phone">Phone</span>
+        </p>
+        <div class="ctas">
+          <a class="cta" data-field="links.website" data-attr="href" href="#">Website</a>
+          <a class="cta secondary" data-field="links.github" data-attr="href" href="#">GitHub</a>
+          <a class="cta secondary" data-field="links.linkedin" data-attr="href" href="#">LinkedIn</a>
+        </div>
+      </section>
+
+      <section id="about" class="block">
+        <h2 class="blockTitle">About</h2>
+        <p class="blockText" data-field="about.bio">About you.</p>
+      </section>
+
+      <section id="skills" class="block">
+        <h2 class="blockTitle">Skills</h2>
+        <div class="chips" data-repeat="skills"></div>
+      </section>
+
+      <section id="projects" class="block">
+        <h2 class="blockTitle">Projects</h2>
+        <div class="cards" data-repeat="projects"></div>
+      </section>
+
+      <section id="experience" class="block">
+        <h2 class="blockTitle">Experience</h2>
+        <div class="timeline" data-repeat="experience"></div>
+      </section>
+
+      <section id="contact" class="block">
+        <h2 class="blockTitle">Contact</h2>
+        <div class="contactRow">
+          <div class="contactItem">
+            <span class="contactLabel">Email</span>
+            <span data-field="basics.email">email@example.com</span>
+          </div>
+          <div class="contactItem">
+            <span class="contactLabel">Phone</span>
+            <span data-field="basics.phone">Phone</span>
+          </div>
+          <div class="contactItem">
+            <span class="contactLabel">Location</span>
+            <span data-field="basics.location">Location</span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        © <span data-field="basics.name">Your Name</span>
+      </footer>
+    </main>
+  </body>
+</html>
