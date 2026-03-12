@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 
@@ -39,6 +39,48 @@ const templates: { id: TemplateId; name: string }[] = [
   { id: 'template-9', name: 'Template 9' },
 ]
 const activeTemplateId = ref<TemplateId>('template-1')
+
+const STORAGE_KEY = 'rb:user'
+type StoredUser = { name: string }
+const userName = ref<string>('')
+const showLogin = ref(true)
+const isAnimating = ref(false)
+
+function safeParseUser(raw: string | null): StoredUser | null {
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw) as Partial<StoredUser>
+    if (typeof parsed?.name === 'string' && parsed.name.trim()) return { name: parsed.name.trim() }
+    return null
+  } catch {
+    return null
+  }
+}
+
+onMounted(() => {
+  const stored = safeParseUser(localStorage.getItem(STORAGE_KEY))
+  if (stored?.name) {
+    userName.value = stored.name
+    showLogin.value = false
+  }
+})
+
+function startExperience() {
+  const name = userName.value.trim()
+  if (!name) return
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ name }))
+  isAnimating.value = true
+  window.setTimeout(() => {
+    showLogin.value = false
+    isAnimating.value = false
+  }, 2200)
+}
+
+function logout() {
+  localStorage.removeItem(STORAGE_KEY)
+  showLogin.value = true
+  isAnimating.value = false
+}
 
 const portfolio = reactive<Portfolio>({
   basics: {
@@ -295,32 +337,84 @@ watch(activeTemplateId, () => void refreshPreview())
 
 <template>
   <div class="appShell">
+    <div v-if="showLogin" class="authShell">
+      <div class="authCard" :class="{ authAnimating: isAnimating }">
+        <div class="authBrand">
+          <div class="authLogo">RB</div>
+          <div class="authBrandText">
+            <div class="authBrandName">Portfolio Builder</div>
+            <div class="authBrandSub">Made by Rajat Kuchara</div>
+          </div>
+        </div>
+
+        <div v-if="!isAnimating" class="authForm">
+          <h1 class="authTitle">Welcome</h1>
+          <p class="authText">Enter your name to continue.</p>
+
+          <label class="authField">
+            <span class="authLabel">Your name</span>
+            <input
+              v-model="userName"
+              class="authInput"
+              placeholder="e.g. Rajat"
+              autocomplete="name"
+              @keydown.enter.prevent="startExperience"
+            />
+          </label>
+
+          <button class="authBtn" type="button" :disabled="!userName.trim()" @click="startExperience">
+            Continue
+          </button>
+        </div>
+
+        <div v-else class="authAnim">
+          <div class="authGlow"></div>
+          <div class="authAnimInner">
+            <div class="authAnimLogo">RB</div>
+            <div class="authAnimWelcome">
+              <div class="authAnimHi">Welcome,</div>
+              <div class="authAnimName">{{ userName.trim() }}</div>
+            </div>
+            <div class="authAnimMade">Made by Rajat Kuchara</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <template v-else>
     <header class="topbar">
       <div class="brand">
-        <div class="logoMark">RB</div>
+        <div class="logoMark" aria-hidden="true">
+          <span class="logoIcon">P</span>
+        </div>
         <div class="brandMeta">
-          <div class="brandName">Resume Builder</div>
-          <div class="brandSub">Create a clean, professional portfolio in minutes.</div>
+          <div class="brandName">Portfolio Builder</div>
+          <div class="brandSub">Professional sites in minutes</div>
         </div>
       </div>
 
       <div class="actions">
-        <label class="selectWrap">
-          <span class="selectLabel">Template</span>
-          <select v-model="activeTemplateId" class="select">
+        <div class="templatePicker">
+          <label class="templateLabel" for="template-select">Template</label>
+          <select id="template-select" v-model="activeTemplateId" class="select">
             <option v-for="t in templates" :key="t.id" :value="t.id">{{ t.name }}</option>
           </select>
-        </label>
-        <button class="btnPrimary" type="button" @click="downloadZip">Download ZIP</button>
+        </div>
+        <button class="btnPrimary" type="button" @click="downloadZip">
+          <span class="btnIcon">↓</span>
+          Download ZIP
+        </button>
+        <button class="btnGhostTop" type="button" @click="logout">Logout</button>
       </div>
     </header>
 
     <main class="main">
       <div class="pageColumn">
         <header class="editorHero">
-          <h1 class="heroTitle">Design your personal website in minutes.</h1>
+          <p class="heroPill">Free · No signup · 9 templates</p>
+          <h1 class="heroTitle">Build your portfolio in minutes</h1>
           <p class="heroText">
-            Edit the sections below — the preview updates as you type.
+            Edit below and see changes instantly. When you’re done, download the files or deploy with one click.
           </p>
           <div class="heroChips">
             <span class="heroChip">Portfolio</span>
@@ -545,21 +639,208 @@ watch(activeTemplateId, () => void refreshPreview())
 
       <aside class="previewColumn">
         <div class="previewFrame">
-          <iframe class="iframe" :srcdoc="iframeSrcdoc" title="Website preview" />
+          <div class="previewBar">
+            <span class="previewLabel">Live preview</span>
+            <span class="previewDot"></span>
+          </div>
+          <div class="iframeWrap">
+            <iframe class="iframe" :srcdoc="iframeSrcdoc" title="Website preview" />
+          </div>
         </div>
       </aside>
     </main>
+    </template>
   </div>
 </template>
 
 <style scoped>
-/* ---- Dark mode palette: slate + teal accent ---- */
+/* Professional builder UI — Plus Jakarta Sans, refined dark theme */
 .appShell {
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr;
-  background: radial-gradient(circle at top, #020617 0%, #020617 40%, #020617 100%);
+  background: #030712;
   color: #e5e7eb;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.authShell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background:
+    radial-gradient(900px 500px at 20% 0%, rgba(13, 148, 136, 0.22), transparent 60%),
+    radial-gradient(900px 500px at 80% 0%, rgba(34, 197, 94, 0.18), transparent 55%),
+    radial-gradient(1200px 700px at 50% 120%, rgba(15, 23, 42, 0.95), #030712);
+}
+.authCard {
+  width: min(520px, 100%);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(15, 23, 42, 0.78);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+.authBrand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.authLogo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #0d9488, #059669);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
+}
+.authBrandText {
+  display: grid;
+  gap: 2px;
+}
+.authBrandName {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #f9fafb;
+}
+.authBrandSub {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+.authForm {
+  padding: 20px 18px 18px;
+}
+.authTitle {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  color: #f9fafb;
+}
+.authText {
+  margin: 8px 0 16px;
+  color: #94a3b8;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.authField {
+  display: grid;
+  gap: 8px;
+}
+.authLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+.authInput {
+  height: 46px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(2, 6, 23, 0.7);
+  color: #f1f5f9;
+  font-size: 14px;
+  font-family: inherit;
+}
+.authInput:focus {
+  outline: none;
+  border-color: #0d9488;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+}
+.authBtn {
+  margin-top: 14px;
+  width: 100%;
+  height: 46px;
+  border-radius: 12px;
+  border: 0;
+  background: linear-gradient(135deg, #0d9488, #059669);
+  color: #fff;
+  font-weight: 700;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(13, 148, 136, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+.authBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(13, 148, 136, 0.34);
+}
+.authBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+.authAnim {
+  position: relative;
+  padding: 34px 18px 30px;
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+}
+.authGlow {
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle at 50% 30%, rgba(13, 148, 136, 0.35), transparent 55%);
+  filter: blur(24px);
+  animation: authGlow 2.2s ease-in-out forwards;
+}
+@keyframes authGlow {
+  0% { opacity: 0; transform: scale(0.9); }
+  30% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.7; transform: scale(1.05); }
+}
+.authAnimInner {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  text-align: center;
+}
+.authAnimLogo {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  font-size: 22px;
+  color: #fff;
+  background: linear-gradient(135deg, #0d9488, #22c55e);
+  box-shadow: 0 18px 45px rgba(13, 148, 136, 0.38);
+  animation: pop 0.5s ease-out both;
+}
+@keyframes pop {
+  from { transform: translateY(6px) scale(0.96); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.authAnimHi {
+  color: #94a3b8;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.authAnimName {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #f9fafb;
+}
+.authAnimMade {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .topbar {
@@ -568,14 +849,12 @@ watch(activeTemplateId, () => void refreshPreview())
   z-index: 10;
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  padding: 14px 24px;
-  background: rgba(15, 23, 42, 0.96);
+  align-items: center;
+  gap: 24px;
+  padding: 16px 28px;
+  background: rgba(3, 7, 18, 0.85);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(15, 23, 42, 1);
-  box-shadow:
-    0 1px 0 rgba(148, 163, 184, 0.08),
-    0 18px 40px rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .brand {
@@ -584,16 +863,20 @@ watch(activeTemplateId, () => void refreshPreview())
   align-items: center;
 }
 .logoMark {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  background: linear-gradient(145deg, #0d9488 0%, #0f766e 50%, #115e59 100%);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #0d9488 0%, #059669 100%);
   color: #fff;
   display: grid;
   place-items: center;
   font-weight: 800;
-  font-size: 13px;
-  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+  font-size: 18px;
+  letter-spacing: -0.04em;
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.4);
+}
+.logoIcon {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .brandMeta {
   display: flex;
@@ -601,61 +884,76 @@ watch(activeTemplateId, () => void refreshPreview())
   gap: 2px;
 }
 .brandName {
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: #f9fafb;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
 }
 .brandSub {
   font-size: 12px;
-  color: #9ca3af;
+  color: #94a3b8;
+  font-weight: 500;
 }
 
 .actions {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
 }
-.selectWrap {
-  display: grid;
-  gap: 4px;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #9ca3af;
+.templatePicker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-.selectLabel {
+.templateLabel {
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94a3b8;
 }
 .select {
-  height: 38px;
-  padding: 0 12px;
+  height: 40px;
+  min-width: 140px;
+  padding: 0 14px;
   border-radius: 10px;
-  border: 1px solid #1f2937;
-  background: #020617;
-  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.8);
+  color: #f1f5f9;
   font-weight: 500;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.select:hover {
+  border-color: rgba(255, 255, 255, 0.18);
 }
 .select:focus {
   outline: none;
-  border-color: #22c55e;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.35);
+  border-color: #0d9488;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
 }
 .btnPrimary {
-  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 20px;
   border-radius: 10px;
-  padding: 0 18px;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
   color: #fff;
   border: none;
   font-weight: 600;
-  font-size: 13px;
-  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.4);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  font-size: 14px;
+  font-family: inherit;
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
 }
 .btnPrimary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.6);
+  box-shadow: 0 8px 24px rgba(13, 148, 136, 0.45);
 }
 .btnPrimary:active {
   transform: translateY(0);
@@ -664,6 +962,28 @@ watch(activeTemplateId, () => void refreshPreview())
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+}
+.btnIcon {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.btnGhostTop {
+  height: 40px;
+  border-radius: 10px;
+  padding: 0 14px;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.btnGhostTop:hover {
+  color: #e5e7eb;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .main {
@@ -680,8 +1000,8 @@ watch(activeTemplateId, () => void refreshPreview())
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
-  padding: 28px 32px 40px;
-  background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), #020617 55%, #020617 100%);
+  padding: 32px 36px 48px;
+  background: #030712;
 }
 
 .editorBody {
@@ -690,68 +1010,85 @@ watch(activeTemplateId, () => void refreshPreview())
 }
 
 .editorHero {
-  padding: 0 0 28px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid rgba(13, 148, 136, 0.12);
+  padding: 0 0 32px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.heroPill {
+  display: inline-block;
+  margin: 0 0 16px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5eead4;
+  background: rgba(13, 148, 136, 0.15);
+  border: 1px solid rgba(13, 148, 136, 0.3);
 }
 .heroTitle {
-  font-size: 1.35rem;
+  font-size: 1.75rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
   color: #f9fafb;
-  line-height: 1.3;
+  line-height: 1.25;
+  margin: 0;
 }
 .heroText {
-  margin-top: 8px;
-  font-size: 13px;
-  color: #9ca3af;
-  max-width: 480px;
-  line-height: 1.5;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #94a3b8;
+  max-width: 520px;
+  line-height: 1.6;
 }
 .heroChips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 18px;
 }
 .heroChip {
   font-size: 11px;
   font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: rgba(34, 197, 94, 0.12);
-  color: #bbf7d0;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .block {
-  border-radius: 16px;
-  padding: 16px 18px 18px;
-  margin-bottom: 16px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid #1f2937;
-  box-shadow:
-    0 16px 35px rgba(15, 23, 42, 0.9),
-    0 0 0 1px rgba(15, 23, 42, 0.8);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 18px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.block:hover {
+  border-color: rgba(255, 255, 255, 0.1);
 }
 .block:first-of-type { border-left: 3px solid #0d9488; }
-.block:nth-of-type(2) { border-left: 3px solid #b45309; }
+.block:nth-of-type(2) { border-left: 3px solid #f59e0b; }
 .block:nth-of-type(3) { border-left: 3px solid #0d9488; }
-.block:nth-of-type(4) { border-left: 3px solid #b45309; }
+.block:nth-of-type(4) { border-left: 3px solid #f59e0b; }
 .blockHeader {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 .blockTitle {
   font-size: 14px;
   font-weight: 700;
-  color: #f9fafb;
-  letter-spacing: -0.01em;
+  color: #f1f5f9;
+  letter-spacing: -0.02em;
 }
 .blockHint {
-  margin-top: 2px;
+  margin-top: 4px;
   font-size: 12px;
-  color: #9ca3af;
+  color: #94a3b8;
+  font-weight: 500;
 }
 
 .grid2 {
@@ -821,8 +1158,8 @@ watch(activeTemplateId, () => void refreshPreview())
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 .btnSoft:hover {
-  background: rgba(13, 148, 136, 0.16);
-  border-color: rgba(13, 148, 136, 0.35);
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.5);
 }
 .btnGhost {
   height: 36px;
@@ -1063,24 +1400,61 @@ watch(activeTemplateId, () => void refreshPreview())
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: radial-gradient(circle at top right, #020617 0%, #020617 40%, #020617 100%);
-  border-left: 1px solid #020617;
+  background: #030712;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .previewFrame {
   flex: 1;
   min-height: 0;
-  padding: 24px 28px 28px;
-  background: radial-gradient(circle at top, rgba(15, 23, 42, 1), rgba(15, 23, 42, 0.9) 55%, rgba(15, 23, 42, 0.8) 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px 24px;
+}
+.previewBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+}
+.previewLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+.previewDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.iframeWrap {
+  flex: 1;
+  min-height: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 12px 40px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
 }
 .iframe {
   width: 100%;
   height: 100%;
   min-height: 400px;
   border: 0;
-  border-radius: 12px;
+  display: block;
   background: #fff;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 @media (max-width: 980px) {
