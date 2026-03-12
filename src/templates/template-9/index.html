@@ -49,6 +49,22 @@
         <div class="cards" data-repeat="projects"></div>
       </section>
 
+      <section id="project-video" class="full">
+        <h2 class="colT">Project video</h2>
+        <p class="videoDesc" data-field="project.videoDescription">Short description of the project video.</p>
+        <div class="videoWrap">
+          <video
+            class="videoPlayer"
+            controls
+            playsinline
+            data-field="project.video"
+            data-attr="src"
+          >
+            Sorry, your browser doesn’t support embedded videos.
+          </video>
+        </div>
+      </section>
+
       <section id="experience" class="full">
         <h2 class="colT">Experience</h2>
         <div class="timeline" data-repeat="experience"></div>

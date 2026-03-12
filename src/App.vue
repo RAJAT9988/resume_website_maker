@@ -23,6 +23,8 @@ type Portfolio = {
   skills: Array<{ name: string }>
   projects: Array<{ name: string; link: string; description: string }>
   experience: Array<{ company: string; role: string; start: string; end: string; details: string }>
+  projectVideoDescription: string
+  projectVideoUrl: string
 }
 
 const TEMPLATE_IDS = ['template-1', 'template-2', 'template-3', 'template-4', 'template-5', 'template-6', 'template-7', 'template-8', 'template-9'] as const
@@ -35,10 +37,19 @@ const templates: { id: TemplateId; name: string }[] = [
   { id: 'template-5', name: 'Template 5' },
   { id: 'template-6', name: 'Template 6' },
   { id: 'template-7', name: 'Template 7' },
-  { id: 'template-8', name: 'Template 8' },
-  { id: 'template-9', name: 'Template 9' },
+  { id: 'template-8', name: 'Template 8 (Premium)' },
+  { id: 'template-9', name: 'Template 9 (Premium)' },
 ]
 const activeTemplateId = ref<TemplateId>('template-1')
+
+const PREMIUM_PASSWORD = 'Raja@123'
+const PREMIUM_KEY = 'rb:premium'
+const PREMIUM_IDS: TemplateId[] = ['template-8', 'template-9']
+const hasPremiumAccess = ref(false)
+const showPremiumModal = ref(false)
+const premiumPassword = ref('')
+const premiumError = ref('')
+const pendingPremiumId = ref<TemplateId | null>(null)
 
 const STORAGE_KEY = 'rb:user'
 type StoredUser = { name: string }
@@ -59,6 +70,8 @@ function safeParseUser(raw: string | null): StoredUser | null {
 
 onMounted(() => {
   const stored = safeParseUser(localStorage.getItem(STORAGE_KEY))
+  const hasPremium = localStorage.getItem(PREMIUM_KEY) === '1'
+  hasPremiumAccess.value = hasPremium
   if (stored?.name) {
     userName.value = stored.name
     showLogin.value = false
@@ -78,8 +91,52 @@ function startExperience() {
 
 function logout() {
   localStorage.removeItem(STORAGE_KEY)
+  localStorage.removeItem(PREMIUM_KEY)
+  hasPremiumAccess.value = false
   showLogin.value = true
   isAnimating.value = false
+}
+
+function isPremium(id: TemplateId) {
+  return PREMIUM_IDS.includes(id)
+}
+
+function requestTemplateChange(e: Event) {
+  const target = e.target as HTMLSelectElement | null
+  if (!target) return
+  const id = target.value as TemplateId
+  if (isPremium(id) && !hasPremiumAccess.value) {
+    pendingPremiumId.value = id
+    premiumPassword.value = ''
+    premiumError.value = ''
+    showPremiumModal.value = true
+    target.value = activeTemplateId.value
+    return
+  }
+  activeTemplateId.value = id
+}
+
+function confirmPremium() {
+  if (premiumPassword.value !== PREMIUM_PASSWORD) {
+    premiumError.value = 'Incorrect password. Please try again.'
+    return
+  }
+  hasPremiumAccess.value = true
+  localStorage.setItem(PREMIUM_KEY, '1')
+  showPremiumModal.value = false
+  premiumError.value = ''
+  if (pendingPremiumId.value) {
+    activeTemplateId.value = pendingPremiumId.value
+  }
+  pendingPremiumId.value = null
+  premiumPassword.value = ''
+}
+
+function cancelPremium() {
+  showPremiumModal.value = false
+  premiumPassword.value = ''
+  premiumError.value = ''
+  pendingPremiumId.value = null
 }
 
 const portfolio = reactive<Portfolio>({
@@ -106,6 +163,8 @@ const portfolio = reactive<Portfolio>({
   experience: [
     { company: 'Acme Inc.', role: 'Frontend Developer', start: '2024', end: 'Present', details: 'Built reusable UI and improved performance.' },
   ],
+  projectVideoDescription: '',
+  projectVideoUrl: '',
 })
 
 function onPhotoSelected(e: Event) {
@@ -288,6 +347,10 @@ function applyDataToHtml(html: string) {
       .join('')
   })
 
+  // Project video (premium templates)
+  setText('project.videoDescription', portfolio.projectVideoDescription)
+  setAttr('project.video', 'src', portfolio.projectVideoUrl)
+
   return '<!doctype html>\n' + doc.documentElement.outerHTML
 }
 
@@ -338,7 +401,7 @@ watch(activeTemplateId, () => void refreshPreview())
 <template>
   <div class="appShell">
     <div v-if="showLogin" class="authShell">
-      <div class="authCard" :class="{ authAnimating: isAnimating }">
+      <div v-if="!isAnimating" class="authCard">
         <div class="authBrand">
           <div class="authLogo">RB</div>
           <div class="authBrandText">
@@ -347,7 +410,7 @@ watch(activeTemplateId, () => void refreshPreview())
           </div>
         </div>
 
-        <div v-if="!isAnimating" class="authForm">
+        <div class="authForm">
           <h1 class="authTitle">Welcome</h1>
           <p class="authText">Enter your name to continue.</p>
 
@@ -366,8 +429,10 @@ watch(activeTemplateId, () => void refreshPreview())
             Continue
           </button>
         </div>
+      </div>
 
-        <div v-else class="authAnim">
+      <div v-else class="authOverlay">
+        <div class="authAnim">
           <div class="authGlow"></div>
           <div class="authAnimInner">
             <div class="authAnimLogo">RB</div>
@@ -396,7 +461,7 @@ watch(activeTemplateId, () => void refreshPreview())
       <div class="actions">
         <div class="templatePicker">
           <label class="templateLabel" for="template-select">Template</label>
-          <select id="template-select" v-model="activeTemplateId" class="select">
+          <select id="template-select" class="select" :value="activeTemplateId" @change="requestTemplateChange">
             <option v-for="t in templates" :key="t.id" :value="t.id">{{ t.name }}</option>
           </select>
         </div>
@@ -585,6 +650,32 @@ watch(activeTemplateId, () => void refreshPreview())
 
           <section class="block">
             <div class="blockHeader">
+              <h2 class="blockTitle">Project video (premium)</h2>
+              <p class="blockHint">First add a short description, then a main project video link.</p>
+            </div>
+            <label class="field">
+              <span>Description above the video</span>
+              <textarea
+                v-model="portfolio.projectVideoDescription"
+                class="textarea"
+                rows="3"
+                placeholder="Explain what this project video is about."
+                @input="scheduleRefresh"
+              />
+            </label>
+            <label class="field">
+              <span>Video URL (e.g. mp4 or hosted link)</span>
+              <input
+                v-model="portfolio.projectVideoUrl"
+                class="input"
+                placeholder="https://..."
+                @input="scheduleRefresh"
+              />
+            </label>
+          </section>
+
+          <section class="block">
+            <div class="blockHeader">
               <h2 class="blockTitle">Experience</h2>
               <p class="blockHint">Give context on your past roles.</p>
             </div>
@@ -649,6 +740,31 @@ watch(activeTemplateId, () => void refreshPreview())
         </div>
       </aside>
     </main>
+
+    <div v-if="showPremiumModal" class="premiumOverlay">
+      <div class="premiumCard">
+        <h2 class="premiumTitle">Unlock premium templates</h2>
+        <p class="premiumText">
+          Enter the access password to use the premium templates with video sections.
+        </p>
+        <label class="premiumField">
+          <span class="premiumLabel">Password</span>
+          <input
+            v-model="premiumPassword"
+            class="premiumInput"
+            type="password"
+            placeholder="Enter password"
+            @keydown.enter.prevent="confirmPremium"
+          />
+        </label>
+        <p v-if="premiumError" class="premiumError">{{ premiumError }}</p>
+        <div class="premiumActions">
+          <button class="premiumBtnGhost" type="button" @click="cancelPremium">Cancel</button>
+          <button class="premiumBtn" type="button" @click="confirmPremium">Unlock</button>
+        </div>
+        <p class="premiumHint">Hint: password is Raja@123</p>
+      </div>
+    </div>
     </template>
   </div>
 </template>
@@ -779,10 +895,17 @@ watch(activeTemplateId, () => void refreshPreview())
   cursor: not-allowed;
   transform: none;
 }
+.authOverlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: grid;
+  place-items: center;
+  z-index: 50;
+}
 .authAnim {
   position: relative;
-  padding: 34px 18px 30px;
-  min-height: 260px;
+  padding: 34px 24px 30px;
   display: grid;
   place-items: center;
 }
@@ -1455,6 +1578,100 @@ watch(activeTemplateId, () => void refreshPreview())
   border: 0;
   display: block;
   background: #fff;
+}
+
+.premiumOverlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 40;
+}
+.premiumCard {
+  width: min(420px, 100% - 32px);
+  border-radius: 16px;
+  padding: 20px 20px 18px;
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.9);
+}
+.premiumTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f9fafb;
+}
+.premiumText {
+  margin: 8px 0 14px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+.premiumField {
+  display: grid;
+  gap: 6px;
+}
+.premiumLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+.premiumInput {
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: 14px;
+}
+.premiumInput:focus {
+  outline: none;
+  border-color: #0d9488;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.5);
+}
+.premiumError {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #f97373;
+}
+.premiumActions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.premiumBtn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 0;
+  background: linear-gradient(135deg, #0d9488, #059669);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.premiumBtnGhost {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: transparent;
+  color: #e5e7eb;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.premiumHint {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #6b7280;
 }
 
 @media (max-width: 980px) {
