@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-field="basics.name">Your Name</title>
+  </head>
+  <body>
+    <header class="siteHead">
+      <div class="headInner">
+        <div class="avatarWrap">
+          <img class="avatar" data-field="basics.photo" alt="Profile photo" />
+          <div class="avatarPlaceholder" data-field="basics.photoPlaceholder">You</div>
+        </div>
+        <div class="headText">
+          <h1 class="name" data-field="basics.name">Your Name</h1>
+          <p class="headline" data-field="basics.headline">Your headline</p>
+          <p class="meta">
+            <span data-field="basics.location">Location</span>
+            <span class="dot">·</span>
+            <a data-field="basics.email" href="mailto:">email@example.com</a>
+            <span class="dot">·</span>
+            <span data-field="basics.phone">Phone</span>
+          </p>
+          <div class="links">
+            <a class="linkBtn" data-field="links.website" data-attr="href" href="#">Website</a>
+            <a class="linkBtn outline" data-field="links.github" data-attr="href" href="#">GitHub</a>
+            <a class="linkBtn outline" data-field="links.linkedin" data-attr="href" href="#">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="bento">
+      <section id="about" class="tile tileWide">
+        <h2 class="tileTitle">About</h2>
+        <p class="tileText" data-field="about.bio">A short intro about you.</p>
+      </section>
+
+      <section id="skills" class="tile">
+        <h2 class="tileTitle">Skills</h2>
+        <div class="chips" data-repeat="skills"></div>
+      </section>
+
+      <section id="projects" class="tile tileWide">
+        <h2 class="tileTitle">Projects</h2>
+        <div class="cards" data-repeat="projects"></div>
+      </section>
+
+      <section id="experience" class="tile tileWide">
+        <h2 class="tileTitle">Experience</h2>
+        <div class="timeline" data-repeat="experience"></div>
+      </section>
+
+      <section id="contact" class="tile">
+        <h2 class="tileTitle">Contact</h2>
+        <div class="contactList">
+          <div class="contactRow">
+            <span class="muted">Email</span>
+            <span data-field="basics.email">email@example.com</span>
+          </div>
+          <div class="contactRow">
+            <span class="muted">Phone</span>
+            <span data-field="basics.phone">Phone</span>
+          </div>
+          <div class="contactRow">
+            <span class="muted">Location</span>
+            <span data-field="basics.location">Location</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="siteFoot">
+      © <span data-field="basics.name">Your Name</span>
+    </footer>
+  </body>
+</html>

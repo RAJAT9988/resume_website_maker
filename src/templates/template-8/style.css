@@ -1,0 +1,151 @@
+/* Template 8 — Neon: dark + cyan/pink glow */
+:root {
+  --bg: #0a0a0f;
+  --card: #12121a;
+  --text: #f0f0f5;
+  --muted: #8888a0;
+  --cyan: #22d3ee;
+  --pink: #f472b6;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-shadow: 0 0 12px rgba(34, 211, 238, 0.8); }
+
+.hero {
+  text-align: center;
+  padding: 56px 24px 48px;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(34, 211, 238, 0.15), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(244, 114, 182, 0.1), transparent 40%);
+  border-bottom: 1px solid rgba(34, 211, 238, 0.2);
+}
+.name {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--cyan), var(--pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.headline { margin: 8px 0 0; font-size: 16px; color: var(--muted); }
+.meta { margin: 14px 0 0; font-size: 14px; color: var(--muted); }
+.dot { margin: 0 8px; opacity: 0.6; }
+.avatarWrap {
+  margin: 24px auto 0;
+  width: 100px;
+  height: 100px;
+}
+.avatarWrap .avatar {
+  display: none;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 24px rgba(34, 211, 238, 0.4);
+}
+.avatarWrap.has-photo .avatar { display: block; }
+.avatarWrap.has-photo .avatarPlaceholder { display: none; }
+.avatarPlaceholder {
+  display: flex; align-items: center; justify-content: center;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(244, 114, 182, 0.2));
+  color: var(--cyan);
+  font-size: 28px;
+  font-weight: 700;
+  border: 2px solid rgba(34, 211, 238, 0.4);
+}
+.ctas { margin-top: 22px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--cyan);
+  color: var(--bg);
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+}
+.btn.out {
+  background: transparent;
+  color: var(--cyan);
+}
+.btn.out:hover { background: rgba(34, 211, 238, 0.15); }
+
+.main { max-width: 640px; margin: 0 auto; padding: 40px 24px 56px; }
+.block {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--card);
+  border: 1px solid rgba(34, 211, 238, 0.15);
+  border-radius: 16px;
+}
+.blockT {
+  margin: 0 0 14px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  background: rgba(34, 211, 238, 0.1);
+  color: var(--cyan);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+}
+
+.cards { display: grid; gap: 16px; }
+.card {
+  padding: 18px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(34, 211, 238, 0.12);
+}
+.cardTop { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.cardTitle { margin: 0; font-size: 17px; font-weight: 700; }
+.cardLink { font-size: 13px; color: var(--cyan); }
+.cardDesc { margin: 10px 0 0; font-size: 14px; color: var(--muted); }
+
+.timeline { display: grid; gap: 16px; }
+.timelineItem {
+  padding: 18px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(34, 211, 238, 0.12);
+}
+.timelineRole { font-weight: 700; font-size: 15px; }
+.muted { color: var(--muted); }
+.timelineDesc { margin-top: 6px; font-size: 14px; color: var(--muted); }
+
+.contactGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.contactItem { font-size: 14px; }
+.contactItem .muted { display: block; font-size: 11px; margin-bottom: 2px; text-transform: uppercase; color: var(--muted); }
+
+.foot {
+  text-align: center;
+  padding: 24px;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid rgba(34, 211, 238, 0.1);
+}
+
+@media (max-width: 640px) {
+  .contactGrid { grid-template-columns: 1fr; }
+}

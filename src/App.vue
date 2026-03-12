@@ -25,18 +25,24 @@ type Portfolio = {
   experience: Array<{ company: string; role: string; start: string; end: string; details: string }>
 }
 
-const TEMPLATE_IDS = ['portfolio-modern', 'classic', 'minimal'] as const
+const TEMPLATE_IDS = ['template-1', 'template-2', 'template-3', 'template-4', 'template-5', 'template-6', 'template-7', 'template-8', 'template-9'] as const
 type TemplateId = (typeof TEMPLATE_IDS)[number]
 const templates: { id: TemplateId; name: string }[] = [
-  { id: 'portfolio-modern', name: 'Portfolio Modern' },
-  { id: 'classic', name: 'Classic' },
-  { id: 'minimal', name: 'Minimal' },
+  { id: 'template-1', name: 'Template 1' },
+  { id: 'template-2', name: 'Template 2' },
+  { id: 'template-3', name: 'Template 3' },
+  { id: 'template-4', name: 'Template 4' },
+  { id: 'template-5', name: 'Template 5' },
+  { id: 'template-6', name: 'Template 6' },
+  { id: 'template-7', name: 'Template 7' },
+  { id: 'template-8', name: 'Template 8' },
+  { id: 'template-9', name: 'Template 9' },
 ]
-const activeTemplateId = ref<TemplateId>('portfolio-modern')
+const activeTemplateId = ref<TemplateId>('template-1')
 
 const portfolio = reactive<Portfolio>({
   basics: {
-    name: 'Rajat Sharma',
+    name: 'Rajat',
     headline: 'Frontend Developer · Vue · UI Systems',
     location: 'India',
     email: 'rajat@example.com',
@@ -97,20 +103,50 @@ const templateModules: Record<
   TemplateId,
   { html: () => Promise<{ default: string }>; css: () => Promise<{ default: string }>; js: () => Promise<{ default: string }> }
 > = {
-  'portfolio-modern': {
-    html: () => import('./templates/portfolio-modern/index.html?raw'),
-    css: () => import('./templates/portfolio-modern/style.css?raw'),
-    js: () => import('./templates/portfolio-modern/script.js?raw'),
+  'template-1': {
+    html: () => import('./templates/template-1/index.html?raw'),
+    css: () => import('./templates/template-1/style.css?raw'),
+    js: () => import('./templates/template-1/script.js?raw'),
   },
-  classic: {
-    html: () => import('./templates/classic/index.html?raw'),
-    css: () => import('./templates/classic/style.css?raw'),
-    js: () => import('./templates/classic/script.js?raw'),
+  'template-2': {
+    html: () => import('./templates/template-2/index.html?raw'),
+    css: () => import('./templates/template-2/style.css?raw'),
+    js: () => import('./templates/template-2/script.js?raw'),
   },
-  minimal: {
-    html: () => import('./templates/minimal/index.html?raw'),
-    css: () => import('./templates/minimal/style.css?raw'),
-    js: () => import('./templates/minimal/script.js?raw'),
+  'template-3': {
+    html: () => import('./templates/template-3/index.html?raw'),
+    css: () => import('./templates/template-3/style.css?raw'),
+    js: () => import('./templates/template-3/script.js?raw'),
+  },
+  'template-4': {
+    html: () => import('./templates/template-4/index.html?raw'),
+    css: () => import('./templates/template-4/style.css?raw'),
+    js: () => import('./templates/template-4/script.js?raw'),
+  },
+  'template-5': {
+    html: () => import('./templates/template-5/index.html?raw'),
+    css: () => import('./templates/template-5/style.css?raw'),
+    js: () => import('./templates/template-5/script.js?raw'),
+  },
+  'template-6': {
+    html: () => import('./templates/template-6/index.html?raw'),
+    css: () => import('./templates/template-6/style.css?raw'),
+    js: () => import('./templates/template-6/script.js?raw'),
+  },
+  'template-7': {
+    html: () => import('./templates/template-7/index.html?raw'),
+    css: () => import('./templates/template-7/style.css?raw'),
+    js: () => import('./templates/template-7/script.js?raw'),
+  },
+  'template-8': {
+    html: () => import('./templates/template-8/index.html?raw'),
+    css: () => import('./templates/template-8/style.css?raw'),
+    js: () => import('./templates/template-8/script.js?raw'),
+  },
+  'template-9': {
+    html: () => import('./templates/template-9/index.html?raw'),
+    css: () => import('./templates/template-9/style.css?raw'),
+    js: () => import('./templates/template-9/script.js?raw'),
   },
 }
 function getTemplateFiles(id: TemplateId) {
@@ -263,7 +299,7 @@ watch(activeTemplateId, () => void refreshPreview())
       <div class="brand">
         <div class="logoMark">RB</div>
         <div class="brandMeta">
-          <div class="brandName">Rajat Builder</div>
+          <div class="brandName">Resume Builder</div>
           <div class="brandSub">Create a clean, professional portfolio in minutes.</div>
         </div>
       </div>

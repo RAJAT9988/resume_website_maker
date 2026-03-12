@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-field="basics.name">Your Name</title>
+  </head>
+  <body>
+    <header class="nav">
+      <div class="brand">
+        <span class="brandDot"></span>
+        <span class="brandName" data-field="basics.name">Your Name</span>
+      </div>
+      <nav class="navLinks">
+        <a href="#about">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#projects">Projects</a>
+        <a href="#experience">Experience</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <div class="heroLeft">
+          <h1 class="heroName" data-field="basics.name">Your Name</h1>
+          <p class="heroHeadline" data-field="basics.headline">Your headline goes here</p>
+          <p class="heroMeta">
+            <span class="metaItem" data-field="basics.location">Location</span>
+            <span class="metaSep">·</span>
+            <a class="metaItem" data-field="basics.email">email@example.com</a>
+            <span class="metaSep">·</span>
+            <span class="metaItem" data-field="basics.phone">+00 0000 0000</span>
+          </p>
+          <div class="heroCtas">
+            <a class="btn" data-field="links.website" data-attr="href" href="#">Website</a>
+            <a class="btn btnGhost" data-field="links.github" data-attr="href" href="#">GitHub</a>
+            <a class="btn btnGhost" data-field="links.linkedin" data-attr="href" href="#">LinkedIn</a>
+          </div>
+        </div>
+        <div class="heroRight">
+          <div class="avatarWrap">
+            <img class="avatar" data-field="basics.photo" alt="Profile photo" />
+            <div class="avatarPlaceholder" data-field="basics.photoPlaceholder">You</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="section">
+        <h2 class="sectionTitle">About</h2>
+        <p class="sectionText" data-field="about.bio">Write something about yourself.</p>
+      </section>
+
+      <section id="skills" class="section">
+        <h2 class="sectionTitle">Skills</h2>
+        <div class="chips" data-repeat="skills"></div>
+      </section>
+
+      <section id="projects" class="section">
+        <h2 class="sectionTitle">Projects</h2>
+        <div class="cards" data-repeat="projects"></div>
+      </section>
+
+      <section id="experience" class="section">
+        <h2 class="sectionTitle">Experience</h2>
+        <div class="timeline" data-repeat="experience"></div>
+      </section>
+
+      <section id="contact" class="section contact">
+        <h2 class="sectionTitle">Contact</h2>
+        <div class="contactGrid">
+          <div class="contactItem">
+            <div class="muted">Email</div>
+            <div data-field="basics.email">email@example.com</div>
+          </div>
+          <div class="contactItem">
+            <div class="muted">Phone</div>
+            <div data-field="basics.phone">+00 0000 0000</div>
+          </div>
+          <div class="contactItem">
+            <div class="muted">Location</div>
+            <div data-field="basics.location">Location</div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="muted">© <span data-field="basics.name">Your Name</span></div>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-field="basics.name">Your Name</title>
+  </head>
+  <body>
+    <header class="hero">
+      <h1 class="name" data-field="basics.name">Your Name</h1>
+      <p class="headline" data-field="basics.headline">Your headline</p>
+      <p class="meta">
+        <span data-field="basics.location">Location</span>
+        <span class="dot">·</span>
+        <a data-field="basics.email" href="mailto:">email@example.com</a>
+        <span class="dot">·</span>
+        <span data-field="basics.phone">Phone</span>
+      </p>
+      <div class="avatarWrap">
+        <img class="avatar" data-field="basics.photo" alt="Profile photo" />
+        <div class="avatarPlaceholder" data-field="basics.photoPlaceholder">You</div>
+      </div>
+      <div class="ctas">
+        <a class="btn" data-field="links.website" data-attr="href" href="#">Website</a>
+        <a class="btn out" data-field="links.github" data-attr="href" href="#">GitHub</a>
+        <a class="btn out" data-field="links.linkedin" data-attr="href" href="#">LinkedIn</a>
+      </div>
+    </header>
+
+    <main class="main">
+      <section id="about" class="block">
+        <h2 class="blockT">About</h2>
+        <p data-field="about.bio">About you.</p>
+      </section>
+
+      <section id="skills" class="block">
+        <h2 class="blockT">Skills</h2>
+        <div class="chips" data-repeat="skills"></div>
+      </section>
+
+      <section id="projects" class="block">
+        <h2 class="blockT">Projects</h2>
+        <div class="cards" data-repeat="projects"></div>
+      </section>
+
+      <section id="experience" class="block">
+        <h2 class="blockT">Experience</h2>
+        <div class="timeline" data-repeat="experience"></div>
+      </section>
+
+      <section id="contact" class="block">
+        <h2 class="blockT">Contact</h2>
+        <div class="contactGrid">
+          <div class="contactItem"><span class="muted">Email</span><span data-field="basics.email">email@example.com</span></div>
+          <div class="contactItem"><span class="muted">Phone</span><span data-field="basics.phone">Phone</span></div>
+          <div class="contactItem"><span class="muted">Location</span><span data-field="basics.location">Location</span></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">© <span data-field="basics.name">Your Name</span></footer>
+  </body>
+</html>
